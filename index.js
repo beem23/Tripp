@@ -1,4 +1,5 @@
 require('dotenv').config();
+const port = process.env.PORT || 8080;;
 const WebSocket = require('ws');
 const express = require('express');
 const http = require('http');
@@ -376,6 +377,6 @@ wss.on('connection', (ws) => {
     });
 });
 
-httpServer.listen(8080, () => {
+httpServer.listen(port, () => {
     console.log('HTTP and WebSocket server listening on port 8080');
 });
