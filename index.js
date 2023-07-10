@@ -378,5 +378,5 @@ wss.on('connection', (ws) => {
 });
 
 httpServer.listen(port, () => {
-    console.log('HTTP and WebSocket server listening on port 8080');
+    console.log(`HTTP and WebSocket server listening on port ${port}`);
 });
