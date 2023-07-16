@@ -328,6 +328,7 @@ wss.on('connection', (ws) => {
             // console.log(miniPCs)
             console.log(`Registered User with ID: ${data.id}`);
             const interval = setInterval(() => {
+                console.log('keep webpage connection alive')
                 Web.send('keepalive');
             }, 30000);
             keepaliveIntervals.set(data.id, interval);
