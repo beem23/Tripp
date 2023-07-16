@@ -163,7 +163,6 @@ async function getLoadStates(miniPCs, id, location, device, mac) {
             console.log('Sending message:', message);
             PC.send(JSON.stringify(message));
             resolve('states sent')
-            // return getLoadsFromMongo(dbName, collectionNameClients, mac);
         } catch (error) {
             console.error('Error sending message:', error);
             throw error;
@@ -305,6 +304,9 @@ const miniPCs = new Map();
 //Keep track of all connected User's on a Webpage:
 const Users = new Map();
 
+//Keep track of all setIntervals:
+const setIntervals = new Map();
+
 // Handle WebSocket connections
 wss.on('connection', (ws) => {
     console.log('New connection established');
@@ -321,11 +323,18 @@ wss.on('connection', (ws) => {
         } else if (data.type === 'webpageuser') {
             //Register this User:
             Users.set(data.id, ws);
+
+            const Web = Users.get(data.id)
             // console.log(miniPCs)
             console.log(`Registered User with ID: ${data.id}`);
+            const interval = setInterval(() => {
+                Web.send('keepalive');
+            }, 30000);
+            keepaliveIntervals.set(data.id, interval);
             //Request from Mini PC the load states
             await getLoadStates(miniPCs, data.id, data.location, data.device, data.mac);
-        } else if (data.type === 'toWebpage') {
+        }
+        else if (data.type === 'toWebpage') {
             const { id, states } = data;
             const Web = Users.get(id);
             if (!Web) {
@@ -372,11 +381,18 @@ wss.on('connection', (ws) => {
         // Remove this user from the map:
         for (const [id, socket] of Users.entries()) {
             if (socket === ws) {
+                // Clear the keepalive interval
+                const interval = keepaliveIntervals.get(id);
+                clearInterval(interval);
+                // Remove the interval from the map
+                keepaliveIntervals.delete(id);
+
                 Users.delete(id);
                 console.log(`Unregistered user with ID: ${id}`);
             }
         }
     });
+
 });
 
 httpServer.listen(port, () => {
