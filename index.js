@@ -350,6 +350,8 @@ wss.on('connection', (ws) => {
             console.log('Unassigned trip detected', data)
             //send to mongodb
 
+        } else if (data.type === 'keepAlive') {
+            console.log('Keep Alive connection from ', data.id)
         }
 
         // Send a response message back to the mini PC
